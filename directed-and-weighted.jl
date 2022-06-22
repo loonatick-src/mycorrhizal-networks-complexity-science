@@ -28,13 +28,13 @@ $\varepsilon \dot u = u - \frac{u^3}{3} - v$
 $\dot v = u + a$
 
 # Coupled oscillators
-This is just one oscillator. We would like to define many oscillators and couple them together. How the fuck you gon' do that? There are many proposed models. One of them says \"why don't we just take this and this and *suck a cock*\"
+This is just one oscillator. We would like to define many oscillators and couple them together. How the fuck you gon' do that? There are many proposed models. One of them is diffusion coupling.
 
 $\varepsilon \dot u_i = u_i - \frac{u_i^3}{3} - v_i - \sigma \sum_{j=1}^{N}G_{ij}(u_i - u_j)$
 $\dot v_i = u_i + a$
 
 ## Network topology
-Some neuroscience nerd made a CSV file with the network topology encoded in there. Let's see if we can do anything with that.
+Some neuroscience nerd made a CSV file with the network topology encoded in there. Let's see if we can do anything with that. The text file contains a weight matrix that can be used to construct an fully connected weighted graph. That is later promoted to a directed graph 
 "
 
 # ╔═╡ 317760c4-b716-4e1a-97ba-175bf5a13387
@@ -1538,7 +1538,7 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╟─50cb2fc2-f162-11ec-24b8-310a0261ccac
+# ╠═50cb2fc2-f162-11ec-24b8-310a0261ccac
 # ╠═8d93dab9-3d9e-43ec-932e-fc0a9723082c
 # ╠═317760c4-b716-4e1a-97ba-175bf5a13387
 # ╠═865228e9-6c24-4613-8352-480cb519454f
