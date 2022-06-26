@@ -27,6 +27,30 @@ def get_clean_dataset(data_path="data/nph_3069_sm_tables2.xls"):
 
     return df
 
+def diameter_to_cohort(diameter):
+    """
+    Maps the diameter to the appropriate cohort. 
+
+    Args:
+        diameter (float): diameter of the tree. 
+
+    Returns:
+        cohort (string): this cohort is based on the diameter, signifying
+        the age of the tree. The three cohorts are: Saplings, Maturing, and
+        Established. 
+
+    """    
+    if diameter <= 15:
+        cohort = "Sapling"
+        
+    elif diameter <=35: 
+        cohort = "Maturing"
+    
+    else: 
+        cohort = "Established"
+        
+    return cohort 
+    
 
 def generate_bipartite_network(df, carbon_scalar=500):
     """
@@ -59,8 +83,9 @@ def generate_bipartite_network(df, carbon_scalar=500):
     # add tree nodes
     for _, row in df.iterrows():
         mean, stdev = cohort_diameter_map[row["Cohort"]]
-        B.add_node(row["Tree"], bipartite=1, cohort=row["Cohort"],
-                   diameter=abs(np.random.normal(mean, stdev)))
+        diameter=abs(np.random.normal(mean, stdev))
+        B.add_node(row["Tree"], bipartite=1, cohort=diameter_to_cohort(diameter),
+                  diameter = diameter)
 
     max_diameter = max(nx.get_node_attributes(B, "diameter").values())
 
