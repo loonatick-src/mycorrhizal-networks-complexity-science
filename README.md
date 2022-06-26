@@ -8,7 +8,7 @@ results from "Architecture of the wood-wide web: _Rhizopogon_ spp. genets link m
 The model dynamics are greatly simplified and do not fully capture the
 complex and diverse dynamics in real-world EMNs. However, this simple model
 displays directed carbon (C) transfer through common EMNs favoring seedlings
-that have higher respiration compared to older trees. This in turn leads to
+that have higher respiration demands compared to older trees. This in turn leads to
 competition between seedlings, where some seedlings outcompete others due to
 being connected to better or more trees. These dynamics emerge from simple,
 local node-to-node rules.
