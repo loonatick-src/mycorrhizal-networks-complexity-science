@@ -1,10 +1,8 @@
-from matplotlib.cm import get_cmap
-from bipartite_statistics import average_degree_partite
 import networkx as nx
 import numpy as np
 from scipy.integrate import solve_ivp
 
-from draw_networks import draw_biparite_network, get_forest_projected_tree_network, parse_forestdata_to_graph, visualize_carbon_network
+from forest_generator import generate_barabasi_forest, generate_barabasi_forest_from_forest, generate_random_regular_graph
 from emn_model import diffusion_dynamics, generate_bipartite_network, get_clean_dataset, tree_project_network
 
 
@@ -94,7 +92,7 @@ def run_experiment(G, analysis_funcs=[sampling_groth_stats]):
     data = run_diffusion_model(G)
     
     return { "stats": stats,
-            "analysis": analyse(G, data, analysis_funcs),
+            "analysis": analyse(G, analysis_funcs, data),
             "sim_data": data}
     
 
@@ -126,7 +124,7 @@ def run_graph_type_experiments(n_max, analysis_funcs=[sampling_groth_stats]):
     forest_graph = tree_project_network(B)
     n_min = forest_graph.number_of_nodes()
     
-    n_nodes = np.linspace(n_min, n_max)
+    n_nodes = np.arange(n_min, n_max,step=2, dtype=int) # n *degree of random network must be even
     data = {}
     
     data["ba"] = {"experiments":[],"n":[]}
@@ -136,18 +134,21 @@ def run_graph_type_experiments(n_max, analysis_funcs=[sampling_groth_stats]):
     for n in n_nodes:
         # experiments with normal barabasi network
         G = nx.barabasi_albert_graph(n, 2) # TODO the graph still needs diameter  and carbon properties
+        G = generate_barabasi_forest(n_nodes=n, m=2)
         result = run_experiment(G, analysis_funcs)
+
         data["ba"]["experiments"].append(result)
         data["ba"]["n"].append(n)
         
         #expeeriments with barabasi network with starting point forest_graph
         G = nx.barabasi_albert_graph(n, 2, initial_graph=forest_graph)
+        G = generate_barabasi_forest_from_forest(n_nodes=n, m=2, forest_graph=forest_graph)
         result = run_experiment(G, analysis_funcs)
         data["ba_forest"]["experiments"].append(result)
         data["ba_forest"]["n"].append(n)
         
         # experiments for random network
-        G = nx.random_regular_graph(2, n)
+        G = generate_random_regular_graph(n_nodes=n, degree=6) # TODO: Help
         result = run_experiment(G, analysis_funcs)
         data["ra"]["experiments"].append(result)
         data["ra"]["n"].append(n)

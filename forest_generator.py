@@ -25,8 +25,8 @@ def generate_barabasi_forest(n_nodes: int, m: int, ) -> nx.Graph:
         
     return G
 
-def generate_barabasi_forest_from_forest(N: int, m: int, forest_graph) -> nx.Graph:
-    G: nx.Graph = nx.barabasi_albert_graph(N, m, initial_graph=forest_graph)
+def generate_barabasi_forest_from_forest(n_nodes: int, m: int, forest_graph) -> nx.Graph:
+    G: nx.Graph = nx.barabasi_albert_graph(n_nodes, m, initial_graph=forest_graph)
     for n in G.nodes():
         # node_dict = G.nodes[n]
         if G.nodes[n].get('diameter') is None:
