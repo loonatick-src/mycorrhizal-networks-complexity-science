@@ -6,7 +6,10 @@ from matplotlib.cm import get_cmap
 from bipartite_statistics import average_degree_partite
 import networkx as nx
 import numpy as np
+from scipy.integrate import solve_ivp
+
 from draw_networks import draw_biparite_network, get_forest_projected_tree_network, parse_forestdata_to_graph, visualize_carbon_network
+from emn_model import diffusion_dynamics, diameter_to_cohort
 
 F = parse_forestdata_to_graph()
 
@@ -62,113 +65,22 @@ amount of carbon reserve: degree
 amount of carbon in roots: degree
 """
 
-def generate_scalefree_forest(N: int, m: int) -> nx.Graph:
+# TODO: Scale based on max diameter from forest data
+def generate_barabasi_forest(N: int, m: int) -> nx.Graph:
     G: nx.Graph = nx.barabasi_albert_graph(N, m)
     for n in G.nodes():
         degree = G.degree(n)
-        G.nodes[n]["diameter"] = np.sqrt(degree)
+        diameter = np.sqrt(degree)
+        G.nodes[n]["diameter"] = diameter
         G.nodes[n]["carbon_value"] = degree
-
+        G.nodes[n]["cohort"] = diameter_to_cohort(diameter)
     return G
 
-G = generate_scalefree_forest(100, 1)
+G = generate_barabasi_forest(100, 1)
 visualize_carbon_network(G)
 
 
+# TODO: generate barabasi starting with initial graph 
 
-# %%
+# TODO: generate 
 
-def compute_graph_statistics(G: nx.Graph)-> dict:
-    stat_funcs = [   
-        nx.degree_centrality,
-        nx.betweenness_centrality,
-        nx.average_node_connectivity,
-        nx.diameter,
-    ]
-    
-    stats = {}
-    for func in stat_funcs:
-        stats[func.__name__] = func(G)
-    
-    return stats
-
-def generic_analysis_func(G):
-    print("not implemented")
-    # The idea here is to measure for example the number of healthy growing trees or something we expect to change or show dynamics
-    # the general network statistics wont change as we currently ddont change the network structure based on the network
-    return 0 # TODO
-
-def run_diffusion_model(G):
-    # Do some diffusive porn stuf with the Graph
-    x = 0 # TODO @Chaitanya does his thing
-
-def run_experiment(G, analysis_funcs=[generic_analysis_func]):
-    # collect initial statistics
-    stats = compute_graph_statistics(G)
-    
-    # run the confusion model 
-    data = run_diffusion_model(G)
-    
-    return { "stats": stats,
-            "analysis": analyse(G, data, analysis_funcs),
-            "sim_data": data}
-
-def analyse(G, analysis_funcs, sim_data):
-    analysis_stats = {}
-    # perform analysis functions
-    for func in analysis_funcs:
-        analysis_stats[func.__name__] = func(G, sim_data)
-        
-    return analysis_stats
-
-
-def run_experiments(n_min, n_max, analysis_funcs=[generic_analysis_func]):
-    # this is used to initialize the barabasi network for ba_forest
-    forest_graph = get_forest_projected_tree_network()
-    
-    n_nodes = np.linspace(n_min, n_max)
-    data = {}
-    
-    data["ba"] = {"experiments":[],"n":[]}
-    data["ba_forest"] = {"experiments":[],"n":[]} 
-    data["ra"] = {"experiments":[],"n":[]}
-    
-    for n in n_nodes:
-        G = nx.barabasi_albert_graph(n, 2)
-        result = run_experiment(G)
-        data["ba"]["experiments"].append(result)
-        data["ba"]["n"].append(n)
-        
-        G = nx.barabasi_albert_graph(n, 2, initial_graph=forest_graph)
-        result = run_experiment(G)
-        data["ba_forest"]["experiments"].append(result)
-        data["ba_forest"]["n"].append(n)
-        
-        G = nx.random_regular_graph(n, 2)
-        result = run_experiment(G)
-        data["ra"]["experiments"].append(result)
-        data["ra"]["n"].append(n)
-        
-    return data
-
-def run_modifying_graph_experiment(G:nx.Graph, modifying_func, mod_args, analysis_funcs=[generic_analysis_func]):
-    
-    modifying_func(G, mod_args)
-    after_stats = compute_graph_statistics(G)
-    sim_data = run_diffusion_model(G)
-    
-    analyse_stats = analyse(G, analysis_funcs)
-    
-    return {
-        "stats": after_stats,
-        "analysis": analyse_stats,
-        "sim_data": sim_data
-    }
-
-
-    
-    
-    
-    
-    
-    

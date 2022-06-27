@@ -52,7 +52,7 @@ def parse_forestdata_to_graph():
     
     return B
 
-def get_forest_projected_tree_network():
+def get_forest_projected_tree_network() -> nx.Graph:
     F = parse_forestdata_to_graph()
     
     trees, fungi = nx.bipartite.sets(F)
