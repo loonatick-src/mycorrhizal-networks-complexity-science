@@ -2,8 +2,6 @@
 import networkx as nx
 import numpy as np
 
-
-from draw_networks import visualize_carbon_network
 from emn_model import diameter_to_cohort
 
 # %%
