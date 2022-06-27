@@ -1,8 +1,10 @@
+from copy import deepcopy
 import networkx as nx
 import numpy as np
 from scipy.integrate import solve_ivp
+from tqdm import tqdm
 
-from forest_generator import generate_barabasi_forest, generate_barabasi_forest_from_forest, generate_random_regular_graph
+from forest_generator import generate_barabasi_forest, generate_barabasi_forest_from_forest, generate_random_graph  
 from emn_model import diffusion_dynamics, generate_bipartite_network, get_clean_dataset, tree_project_network
 
 
@@ -17,12 +19,16 @@ def compute_graph_statistics(G: nx.Graph)-> dict:
     
     stats = {}
     for func in stat_funcs:
-        stats[func.__name__] = func(G)
+        try:
+            stats[func.__name__] = func(G)
+        except:
+            stats[func.__name__] = np.NaN
     
     return stats
 
-def sampling_groth_stats(G, data):
+def sampling_growth_stats(G, data, success_threshold=5):
     roots_carbon, plant_carbon, plant_diameter =  data
+
     
     nodes_by_cohort = {"Sapling": [], "Maturing": [], "Established": []}
     node_list = list(G.nodes)
@@ -44,7 +50,7 @@ def sampling_groth_stats(G, data):
         percentage_stdev = np.std(percentages)
         
         if cohort == "Sapling": 
-            n_successes = np.sum([percentages >= 200])
+            n_successes =  np.sum([growth >= success_threshold])     #np.sum([percentages >= 200])
             result = {
                 "average_growth": avg_growth,
                 "percentage_mean_growth": percentage_mean,
@@ -84,7 +90,7 @@ def run_diffusion_model(G):
     return roots_carbon, plant_carbon, plant_diameter
 
 
-def run_experiment(G, analysis_funcs=[sampling_groth_stats]):
+def run_experiment(G, analysis_funcs=[sampling_growth_stats]):
     # collect initial statistics
     stats = compute_graph_statistics(G)
     
@@ -107,7 +113,7 @@ def analyse(G, analysis_funcs, sim_data):
         
     return analysis_stats
 
-def run_graph_type_experiments(n_max, analysis_funcs=[sampling_groth_stats]):
+def run_graph_type_experiments(n_max, analysis_funcs=[sampling_growth_stats]):
     """Runs experiments on 3 type of networks for increasing number of nodes. Starts with number of nodes equal to the number of nodes in the treenetwork
 
     Args:
@@ -148,34 +154,52 @@ def run_graph_type_experiments(n_max, analysis_funcs=[sampling_groth_stats]):
         data["ba_forest"]["n"].append(n)
         
         # experiments for random network
-        G = generate_random_regular_graph(n_nodes=n, degree=6) # TODO: Help
+        G = generate_random_graph(n_nodes=n, degree=6) # TODO: Help
         result = run_experiment(G, analysis_funcs)
         data["ra"]["experiments"].append(result)
         data["ra"]["n"].append(n)
         
     return data
 
-def run_mutated_graph_experiment(G:nx.Graph, mutate_func, mod_args, analysis_funcs=[sampling_groth_stats]):
+def run_mutated_graph_experiment(G:nx.Graph, mutate_func, mod_args, analysis_funcs=[sampling_growth_stats], n_mutations=10):
     """Mutates the graph and runs the diffusion model. We want to see what happens to the diffusion when we remove edges or nodes
 
     Args:
         G (nx.Graph): initial graph
         mutate_func (func): function that mutates the graph
         mod_args (list): list of args for the mod
-        analysis_funcs (list, optional): functions that perform analysis . Defaults to [generic_analysis_func].
+        analysis_funcs (list, optional): functions that perform analysis . Defaults to [sampling_growth_stats].
 
     Returns:
         dict: dictionary with network statsitics, diffusion analysis and simulation data.
     """
     
-    mutate_func(G, mod_args)
-    after_stats = compute_graph_statistics(G)
-    sim_data = run_diffusion_model(G)
+    after_stats = []
+    sim_data = []
+    analyse_stats = []
     
-    analyse_stats = analyse(G, analysis_funcs, sim_data)
+    copy_mod_args = deepcopy(mod_args)
+    F = deepcopy(G)
+
+    
+    for i in tqdm( range(0, n_mutations), desc=mutate_func.__name__):
+        mutate_func(F,copy_mod_args)
+        after_stats.append(compute_graph_statistics(F))
+        data = run_diffusion_model(F)
+        sim_data.append(data)
+        analyse_stats.append(analyse(F, analysis_funcs, data))
     
     return {
         "stats": after_stats,
         "analysis": analyse_stats,
         "sim_data": sim_data
     }
+    
+def target_attack(G:nx.Graph, sorted_node_list:list):
+    G.remove_node(sorted_node_list.pop())
+from random import choice    
+def failure(G:nx.Graph, sorted_node_list:list):
+    choise = choice(sorted_node_list)
+    G.remove_node(choise)
+    sorted_node_list.remove(choise)
+    

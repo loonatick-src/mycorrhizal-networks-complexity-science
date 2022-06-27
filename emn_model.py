@@ -110,7 +110,7 @@ def generate_bipartite_network(df, carbon_scalar=500, stress_level=0):
     return B
 
 
-def tree_project_network(B):
+def tree_project_network(B)-> nx.Graph:
     """
     Project bipartite network to phytocentric network with trees as nodes and
     fungal connections as edges.
