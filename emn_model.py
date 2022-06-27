@@ -52,7 +52,7 @@ def diameter_to_cohort(diameter):
     return cohort 
     
 
-def generate_bipartite_network(df, carbon_scalar=500):
+def generate_bipartite_network(df, carbon_scalar=500, stress_level=0):
     """
     Generate bipartite network with fungal and tree nodes as different
     bipartites.
@@ -75,7 +75,7 @@ def generate_bipartite_network(df, carbon_scalar=500):
         4: (46.4, 5.3)
     }
 
-    def calc_carbon(diameter, max_diameter, stress_level=0):
+    def calc_carbon(diameter, max_diameter):
         fraction = diameter/max_diameter
         carbon = np.tanh((fraction - 0.5)*np.pi*2) + stress_level
         return carbon
