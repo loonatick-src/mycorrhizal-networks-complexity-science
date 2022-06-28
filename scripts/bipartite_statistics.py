@@ -1,4 +1,3 @@
-import imp
 from matplotlib import pyplot as plt
 import networkx as nx
 from networkx.algorithms import bipartite

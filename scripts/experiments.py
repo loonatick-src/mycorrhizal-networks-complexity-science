@@ -4,8 +4,8 @@ import numpy as np
 from scipy.integrate import solve_ivp
 from tqdm import tqdm
 
-from forest_generator import generate_barabasi_forest, generate_barabasi_forest_from_forest, generate_random_graph  
-from emn_model import diffusion_dynamics, generate_bipartite_network, get_clean_dataset, tree_project_network
+from .forest_generator import generate_barabasi_forest, generate_barabasi_forest_from_forest, generate_random_graph  
+from .emn_model import diffusion_dynamics, generate_bipartite_network, get_clean_dataset, tree_project_network
 
 
 def compute_graph_statistics(G: nx.Graph)-> dict:

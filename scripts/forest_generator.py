@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
 
-from emn_model import diameter_to_cohort
+from .emn_model import diameter_to_cohort
 
 """
 The generation of a scale free network that is compatible
