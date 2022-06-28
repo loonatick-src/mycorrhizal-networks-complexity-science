@@ -38,7 +38,8 @@ def set_carbon_value_for_node(n: int, G: nx.Graph, a, b):
         G.nodes[n]["cohort"] = diameter_to_cohort(randomised_diameter) 
 
 def generate_barabasi_forest(n_nodes: int, m: int, seed=500) -> nx.Graph:
-    G: nx.Graph = nx.barabasi_albert_graph(n_nodes, m)
+    # TODO This function fails magically sometimes, but not always. 
+    G: nx.Graph = nx.barabasi_albert_graph(n_nodes, m, seed=seed)
     # find highest degree and the smallest degree to map the diameter to the max and the min
     degree_sequence = [d for n, d in G.degree()]
     a, b = degree_diameter_relation(degree_sequence[-1], degree_sequence[0])
