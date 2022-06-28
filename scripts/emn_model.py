@@ -27,30 +27,31 @@ def get_clean_dataset(data_path="data/nph_3069_sm_tables2.xls"):
 
     return df
 
+
 def diameter_to_cohort(diameter):
     """
-    Maps the diameter to the appropriate cohort. 
+    Maps the diameter to the appropriate cohort.
 
     Args:
-        diameter (float): diameter of the tree. 
+        diameter (float): diameter of the tree.
 
     Returns:
         cohort (string): this cohort is based on the diameter, signifying
         the age of the tree. The three cohorts are: Saplings, Maturing, and
-        Established. 
+        Established.
 
-    """    
+    """
     if diameter <= 15:
         cohort = "Sapling"
-        
-    elif diameter <=35: 
+
+    elif diameter <= 35:
         cohort = "Maturing"
-    
-    else: 
+
+    else:
         cohort = "Established"
-        
-    return cohort 
-    
+
+    return cohort
+
 
 def generate_bipartite_network(df, carbon_scalar=500, stress_level=0):
     """
@@ -76,23 +77,26 @@ def generate_bipartite_network(df, carbon_scalar=500, stress_level=0):
     }
 
     def calc_carbon(diameter, max_diameter):
-        fraction = diameter/max_diameter
-        carbon = np.tanh((fraction - 0.5)*np.pi*2) + stress_level
+        fraction = diameter / max_diameter
+        carbon = np.tanh((fraction - 0.5) * np.pi * 2) + stress_level
         return carbon
 
     # add tree nodes
     for _, row in df.iterrows():
         mean, stdev = cohort_diameter_map[row["Cohort"]]
-        diameter=abs(np.random.normal(mean, stdev))
-        B.add_node(row["Tree"], bipartite=1, cohort=diameter_to_cohort(diameter),
-                  diameter = diameter)
+        diameter = abs(np.random.normal(mean, stdev))
+        B.add_node(
+            row["Tree"],
+            bipartite=1,
+            cohort=diameter_to_cohort(diameter),
+            diameter=diameter)
 
     max_diameter = max(nx.get_node_attributes(B, "diameter").values())
 
     for node in B.nodes():
         if B.nodes[node]["bipartite"] == 1:
             B.nodes[node]["carbon_value"] = (calc_carbon(
-                B.nodes[node]["diameter"], max_diameter) + 1)*carbon_scalar
+                B.nodes[node]["diameter"], max_diameter) + 1) * carbon_scalar
 
     # add edges between genets and trees
     edges = []
@@ -110,7 +114,7 @@ def generate_bipartite_network(df, carbon_scalar=500, stress_level=0):
     return B
 
 
-def tree_project_network(B)-> nx.Graph:
+def tree_project_network(B) -> nx.Graph:
     """
     Project bipartite network to phytocentric network with trees as nodes and
     fungal connections as edges.
@@ -155,7 +159,7 @@ def split3(xs, N):
     Returns:
         Tuple[List[float], List[float], List[float]]: Split state variables
     """
-    return xs[:N], xs[N:2*N], xs[2*N:]
+    return xs[:N], xs[N:2 * N], xs[2 * N:]
 
 
 def diameter_growth(d, p, k, c, g):
@@ -167,7 +171,7 @@ def diameter_growth(d, p, k, c, g):
     Returns:
         float: Carbon used for growth per time step for tree with diameter `d`
     """
-    return g*1/(1 + c**(-d*k))*p
+    return g * 1 / (1 + c**(-d * k)) * p
 
 
 def gaussian_uptake(d, A, μ, σ):
@@ -180,7 +184,7 @@ def gaussian_uptake(d, A, μ, σ):
     Returns:
         float: Root carbon uptake per time step
     """
-    return A*d*np.exp(-(d-μ)**2/σ)
+    return A * d * np.exp(-(d - μ)**2 / σ)
 
 
 def diffusion_dynamics(t, y, G, D_C, N, uptake_ps, f, k, c, g, rho):
@@ -215,16 +219,17 @@ def diffusion_dynamics(t, y, G, D_C, N, uptake_ps, f, k, c, g, rho):
     d_plant = np.zeros(n_p)
     d_diameter = np.zeros(n_d)
 
-    for i, (r_i, p_i, d_i) in enumerate(zip(nutrient_root, nutrient_plant, plant_diameter)):
+    for i, (r_i, p_i, d_i) in enumerate(
+            zip(nutrient_root, nutrient_plant, plant_diameter)):
         # common terms between coupled DE's
-        uptake = r_i*gaussian_uptake(d_i, *uptake_ps)
-        deposition = f*p_i
+        uptake = r_i * gaussian_uptake(d_i, *uptake_ps)
+        deposition = f * p_i
         growth = diameter_growth(d_i, p_i, k=k, c=c, g=g)
 
         # change in root carbon, plant carbon, and diameter
         d_root[i] += -uptake + deposition
         d_plant[i] += uptake - deposition - growth
-        d_diameter[i] += rho*growth
+        d_diameter[i] += rho * growth
 
         # diffusion
         neighbors = get_neighbors(G, i)
@@ -232,6 +237,6 @@ def diffusion_dynamics(t, y, G, D_C, N, uptake_ps, f, k, c, g, rho):
             neighbor_node_idx = list(G.nodes).index(j)
             r_j = nutrient_root[neighbor_node_idx]
 
-            d_root[i] += D_C*(r_j - r_i)
+            d_root[i] += D_C * (r_j - r_i)
 
     return np.concatenate((d_root, d_plant, d_diameter))
