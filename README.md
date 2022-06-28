@@ -12,3 +12,7 @@ that have higher respiration demands compared to older trees. This in turn leads
 competition between saplings, where some saplings outcompete others due to
 being connected to better or more trees. These dynamics emerge from simple,
 local node-to-node rules.
+
+
+
+https://user-images.githubusercontent.com/7383594/176229237-0f5ddd08-fb5e-4c3f-ae63-608cf645f729.mp4
