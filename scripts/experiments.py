@@ -203,3 +203,16 @@ def failure(G:nx.Graph, sorted_node_list:list):
     G.remove_node(choise)
     sorted_node_list.remove(choise)
     
+def run_n_graph_failure_experiments(G, sorted_trees, N_iteration):
+    N = N_iteration
+    n_mutations = G.number_of_nodes()-4
+    failure_results = {"average_growth":[], "nsuccesses":[]}
+    print(f"running {N} iterations of failure...")
+    for i in range(N):
+        
+
+        failure_result = run_mutated_graph_experiment(G, failure, sorted_trees, n_mutations=n_mutations) 
+        failure_results["average_growth"].append([d["nsuccesses"] for d in failure_result["analysis"]])
+        failure_results["average_growth"].append([d["nsuccesses"] for d in failure_result["analysis"]])
+
+    return failure_results
