@@ -76,8 +76,8 @@ def generate_barabasi_forest_from_forest(
     return G
 
 
-def generate_random_graph(n_nodes, p=0.2):
-    G: nx.Graph = nx.erdos_renyi_graph(n_nodes, p=p, seed=500)
+def generate_random_graph(n_nodes, p=0.2, seed=500):
+    G: nx.Graph = nx.erdos_renyi_graph(n_nodes, p=p, seed=seed)
 
     degree_sequence = [d for n, d in G.degree()]
     a, b = degree_diameter_relation(degree_sequence[-1], degree_sequence[0])
