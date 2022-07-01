@@ -16,3 +16,28 @@ local node-to-node rules.
 
 
 https://user-images.githubusercontent.com/7383594/176503913-77a2755c-dbb1-4ee9-a557-ca55adb386ea.mp4
+
+## Repository Structure
+- `data/`: Contains network data from paper used in experiments and saved data
+  from computationally demanding experiments.
+- `figures/`: Plots and network visualizations used in presentation.
+- `movie_frames/`: Contains animation(s) of network.
+- `src/`: Python source files used in experiments/simulations.
+
+Notebooks containing visualization and analysis code for various experiments are
+found in the root of the repository. The notebooks contain the following
+experiments:
+- `Forest Data Experiments.ipynb`: Main results and experiments on the forest
+  data from the Beiler paper.
+- `Forest Attack and Failure Experiment.ipynb`: Attack and failure experiments
+  on forest data.
+- `Average Degree vs. Average Growth Experiment.ipynb`: Experiment on the
+  importance of connectedness on growth.
+- `Characteristic Time Experiment.ipynb`: Experiment on the influence of
+  connectedness on the characteristic time.
+- `Network Dynamics Animation.ipynb`: Notebook for creating the animation of
+  carbon spread and growth throughout the forest network.
+- `Barabasi-Albert Network Experiments.ipynb`: Experiments repeated on generated
+  Barbasi-Albert scale-free network.
+- `Erdos-Renyi Network Experiments.ipynb`: Experiments repeated on generated
+  Erdos-Renyi random network.
